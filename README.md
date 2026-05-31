@@ -189,7 +189,8 @@ Production code references: 0 个文件
 ```bash
 git clone https://github.com/rrred0324/cloud-release.git
 cd cloud-release
-./setup.sh
+./setup.sh              # 全局安装（默认）：~/.claude/skills/cloud-release
+./setup.sh --project    # 项目内安装：.claude/skills/cloud-release
 ```
 
 安装后重启 Claude Code，在项目目录运行 `/cloud-release`。
@@ -199,7 +200,8 @@ cd cloud-release
 ```bash
 git clone https://github.com/rrred0324/cloud-release.git
 cd cloud-release
-./install.sh codex
+./install.sh codex              # 全局安装（默认）：~/.agents/skills/cloud-release
+./install.sh codex --project    # 项目内安装：.agents/skills/cloud-release
 ```
 
 安装后运行 `codex exec "/cloud-release"`。
@@ -207,11 +209,11 @@ cd cloud-release
 ### 手动安装
 
 ```bash
-# Claude Code
+# Claude Code（全局）
 git clone https://github.com/rrred0324/cloud-release.git ~/.claude/skills/cloud-release
 
-# Codex CLI（在项目目录下）
-git clone https://github.com/rrred0324/cloud-release.git .agents/skills/cloud-release
+# Codex CLI（全局）
+git clone https://github.com/rrred0324/cloud-release.git ~/.agents/skills/cloud-release
 ```
 
 ---
