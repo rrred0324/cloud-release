@@ -1,0 +1,10 @@
+# 过程文件 — 不推送到公开仓库
+docs/superpowers/
+
+# 本地状态文件
+.cloudrelease-state.json
+releases/
+
+# macOS
+.DS_Store
+.claude/

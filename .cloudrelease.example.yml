@@ -1,0 +1,123 @@
+# Cloud Release Configuration
+# ===========================
+# This file is optional. Cloud Release auto-detects most settings.
+# Only override values that auto-detection gets wrong or can't detect.
+# Place in project root as .cloudrelease.yml
+
+# Project info (optional — auto-detected from directory name and structure)
+project:
+  name: ""                    # Project name. Default: directory name
+  type: ""                    # fullstack | frontend | backend. Default: auto-detected
+
+# Tech stack configuration (optional — auto-detected from project files)
+# Uncomment and fill only if auto-detection is incorrect.
+stack:
+  frontend:
+    enabled: true             # Has frontend? Default: auto-detected
+    path: ""                  # Frontend directory. Default: "frontend" or "."
+    build_command: ""          # e.g., "npm run build". Default: auto-detected from package.json
+    dist_path: ""             # Build output. e.g., "frontend/dist". Default: auto-detected
+    framework: ""              # react | vue | next | nuxt | svelte | astro. Default: auto-detected
+
+  backend:
+    enabled: true             # Has backend? Default: auto-detected
+    path: ""                  # Backend directory. Default: "backend" or "."
+    language: ""               # python | nodejs | java | go | rust. Default: auto-detected
+    framework: ""              # fastapi | flask | django | express | nestjs | spring-boot | gin | actix | axum. Default: auto-detected
+    runtime_path: ""           # e.g., "./venv/bin/python". Default: auto-detected
+    test_command: ""            # e.g., "pytest tests/ -v". Default: auto-detected
+    entry_point: ""             # e.g., "app.main:app". Default: auto-detected
+
+  database:
+    enabled: true             # Has database? Default: auto-detected
+    type: ""                   # sqlite | postgresql | mysql | mongodb | redis. Default: auto-detected
+    path: ""                   # Database file path (SQLite). Default: auto-detected
+    migration_tool: ""         # alembic | django-orm | prisma | flyway | goose | sqlx | none. Default: auto-detected
+    backup_path: ""             # Directory for database backups. Default: "./backups"
+
+# Deployment target (optional — auto-detected + recommended)
+# If not specified, Cloud Release detects and recommends a target.
+target:
+  # Primary deployment method
+  method: ""                   # systemd | docker | kubernetes | serverless | cicd. Default: recommended
+
+  # Server info (for systemd / rsync deployments)
+  server:
+    host: ""                   # e.g., "your-server.com". Not auto-detected.
+    user: ""                   # e.g., "deploy". Default: "root"
+    deploy_path: ""             # e.g., "/var/www/myapp". Not auto-detected.
+    ssh_key_ref: ""             # Reference to SSH key (e.g., "~/.ssh/deploy_key"). Not the key itself.
+
+  # Docker configuration
+  docker:
+    compose_file: ""           # Path to docker-compose.yml. Default: auto-detected
+    registry: ""               # Container registry URL. e.g., "ghcr.io/org"
+    image_name: ""              # Image name without tag. e.g., "myapp"
+
+  # Kubernetes configuration
+  kubernetes:
+    namespace: ""               # K8s namespace. Default: "default"
+    manifest_path: ""           # Path to K8s manifests. Default: auto-detected
+    helm_chart_path: ""         # Path to Helm chart. Default: auto-detected
+    context: ""                 # kubectl context name. Default: current context
+
+  # Serverless configuration
+  serverless:
+    provider: ""               # vercel | netlify | cloudflare-workers | aws-lambda. Default: auto-detected
+    config_file: ""            # e.g., "vercel.json", "wrangler.toml". Default: auto-detected
+
+  # CI/CD configuration
+  cicd:
+    provider: ""               # github-actions | gitlab-ci | circleci | jenkins. Default: auto-detected
+    config_path: ""            # Pipeline config path. Default: auto-detected
+
+  # Service management
+  service:
+    type: ""                   # systemd | supervisor | pm2 | none. Default: auto-detected
+    name: ""                   # Service name. Default: project name
+
+# Security check configuration
+security:
+  # Additional sensitive file patterns (appended to defaults)
+  sensitive_patterns: []
+  # Additional protected endpoint patterns (appended to defaults)
+  protected_endpoints: []
+  # Security checks to skip (use with caution)
+  skip_checks: []
+
+# Verification configuration
+verification:
+  # Health check endpoint (auto-detected if common patterns exist)
+  health_check_url: ""
+  # Features to verify after deployment
+  features: []
+    # - name: "Login page"
+    #   url: "/login"
+    # - name: "Dashboard"
+    #   url: "/dashboard"
+  # Database queries to verify data integrity
+  data_checks: []
+    # - name: "User count"
+    #   query: "SELECT COUNT(*) FROM users"
+    #   min_expected: 1
+
+# Output configuration
+output:
+  deployment_plan_path: ""     # Default: "releases/<date>/DEPLOYMENT_PLAN.md"
+  release_report_path: ""      # Default: "releases/<date>/RELEASE_REPORT.md"
+  scripts_dir: ""              # Default: "releases/<date>/scripts"
+  state_file: ""               # Default: ".cloudrelease-state.json" — tracks last synced schema to avoid re-reporting
+
+# Custom scripts (optional)
+custom_scripts:
+  pre_deploy: []               # Scripts to run before deployment
+  post_deploy: []               # Scripts to run after deployment
+
+# Exclude patterns (added to defaults)
+exclude:
+  - "node_modules"
+  - "venv"
+  - ".venv"
+  - "__pycache__"
+  - ".git"
+  - "*.pyc"
