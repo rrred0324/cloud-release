@@ -278,7 +278,67 @@ For API endpoints, check for missing authentication:
 - Java (Spring): Search for `@RequestMapping` without `@PreAuthorize`
 - Go: Search for route registrations without auth middleware
 
-### 3.3: Security gate
+### 3.3: Configuration file security validation
+
+If `.cloudrelease.yml` exists, validate it before any execution:
+
+```python
+import re, os
+
+SHELL_METACHAR = re.compile(r'[;&|`$<>()\n]')
+UNSAFE_PATH    = re.compile(r'(^\s*/|\.\./)') # absolute or traversal
+
+def validate_config(cfg):
+    errors = []
+    # Command fields — reject shell metacharacters
+    cmd_fields = [
+        cfg.get('stack', {}).get('frontend', {}).get('build_command', ''),
+        cfg.get('stack', {}).get('backend',  {}).get('test_command',  ''),
+        cfg.get('stack', {}).get('backend',  {}).get('entry_point',   ''),
+    ]
+    for cmd in cmd_fields:
+        if cmd and SHELL_METACHAR.search(cmd):
+            errors.append(f"BLOCKED: command contains shell metacharacters: {cmd!r}")
+
+    # custom_scripts — relative paths only, no shell metacharacters
+    for script in cfg.get('custom_scripts', {}).get('pre_deploy', []) + \
+                  cfg.get('custom_scripts', {}).get('post_deploy', []):
+        if UNSAFE_PATH.search(script) or SHELL_METACHAR.search(script):
+            errors.append(f"BLOCKED: unsafe script path: {script!r}")
+
+    # Path fields — no absolute paths, no traversal
+    path_fields = [
+        cfg.get('stack', {}).get('frontend', {}).get('path', ''),
+        cfg.get('stack', {}).get('frontend', {}).get('dist_path', ''),
+        cfg.get('stack', {}).get('backend',  {}).get('path', ''),
+        cfg.get('stack', {}).get('database', ).get('path', ''),
+        cfg.get('stack', {}).get('database', {}).get('backup_path', ''),
+        cfg.get('output', {}).get('deployment_plan_path', ''),
+        cfg.get('output', {}).get('release_report_path', ''),
+        cfg.get('output', {}).get('scripts_dir', ''),
+    ]
+    for p in path_fields:
+        if p and UNSAFE_PATH.search(p):
+            errors.append(f"BLOCKED: unsafe path (absolute or traversal): {p!r}")
+
+    # health_check_url — relative path only, no scheme
+    hcu = cfg.get('verification', {}).get('health_check_url', '')
+    if hcu and (re.match(r'[a-z]+://', hcu) or not hcu.startswith('/')):
+        errors.append(f"BLOCKED: health_check_url must be a relative path starting with '/': {hcu!r}")
+
+    # skip_checks — P0 checks cannot be skipped
+    P0 = {'sensitive_files', 'hardcoded_secrets', 'missing_auth'}
+    skipped = set(cfg.get('security', {}).get('skip_checks', []))
+    blocked = P0 & skipped
+    if blocked:
+        errors.append(f"BLOCKED: P0 security checks cannot be skipped: {blocked}")
+
+    return errors
+```
+
+If any errors are returned: **STOP**, output each error, mark status as `BLOCKED`. Do not proceed to Step 4.
+
+### 3.4: Security gate
 
 If P0 issues found:
 - **STOP** the workflow
@@ -289,6 +349,7 @@ P0 issues:
 - Sensitive files tracked in git
 - Hardcoded secrets in source code
 - Critical endpoints without authentication
+- `.cloudrelease.yml` validation errors (from 3.3)
 
 **[PLATFORM:INTERACT]**
 question: P0 security issues found: {p0_summary}. Deployment is blocked.

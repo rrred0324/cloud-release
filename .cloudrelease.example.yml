@@ -3,6 +3,19 @@
 # This file is optional. Cloud Release auto-detects most settings.
 # Only override values that auto-detection gets wrong or can't detect.
 # Place in project root as .cloudrelease.yml
+#
+# SECURITY NOTICE
+# ---------------
+# This file is executed by an AI agent. Treat it like a shell script:
+# - Commit it to version control and review every change in PRs.
+# - Do NOT accept this file from untrusted sources or external input.
+# - All path fields must be relative paths within the project root.
+#   Absolute paths and ../ traversal are rejected at runtime.
+# - build_command / test_command / custom_scripts are executed as-is.
+#   Use only trusted, project-owned commands. Shell metacharacters
+#   (; | & $ ` < >) in these fields will be flagged and blocked.
+# - data_checks queries run against your production database.
+#   Use SELECT-only queries with a read-only DB user.
 
 # Project info (optional — auto-detected from directory name and structure)
 project:
@@ -83,11 +96,14 @@ security:
   # Additional protected endpoint patterns (appended to defaults)
   protected_endpoints: []
   # Security checks to skip (use with caution)
+  # P0 checks (sensitive_files, hardcoded_secrets, missing_auth) CANNOT be skipped.
+  # Only non-security checks may be listed here (e.g., "lint", "type_check").
   skip_checks: []
 
 # Verification configuration
 verification:
-  # Health check endpoint (auto-detected if common patterns exist)
+  # Health check endpoint — must be a relative path (e.g., "/health", "/api/status").
+  # Absolute URLs and external hosts are rejected to prevent SSRF.
   health_check_url: ""
   # Features to verify after deployment
   features: []
@@ -95,7 +111,9 @@ verification:
     #   url: "/login"
     # - name: "Dashboard"
     #   url: "/dashboard"
-  # Database queries to verify data integrity
+  # Database queries to verify data integrity after deployment.
+  # SECURITY: Use SELECT-only queries. Run with a read-only DB user.
+  # Do NOT use INSERT/UPDATE/DELETE/DROP or queries with user-controlled input.
   data_checks: []
     # - name: "User count"
     #   query: "SELECT COUNT(*) FROM users"
@@ -109,9 +127,12 @@ output:
   state_file: ""               # Default: ".cloudrelease-state.json" — tracks last synced schema to avoid re-reporting
 
 # Custom scripts (optional)
+# SECURITY: Only relative paths within the project root are allowed.
+# Absolute paths, ../ traversal, and shell metacharacters are rejected.
+# Scripts are executed directly, not via shell interpolation.
 custom_scripts:
-  pre_deploy: []               # Scripts to run before deployment
-  post_deploy: []               # Scripts to run after deployment
+  pre_deploy: []               # e.g., ["scripts/pre-deploy.sh"]
+  post_deploy: []              # e.g., ["scripts/post-deploy.sh"]
 
 # Exclude patterns (added to defaults)
 exclude:
