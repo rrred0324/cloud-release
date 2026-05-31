@@ -184,25 +184,34 @@ Production code references: 0 个文件
 
 ## 安装
 
-### 作为 Claude Code Skill
+### For Claude Code
 
 ```bash
-# 克隆到 skill 目录
-git clone https://github.com/rrred0324/cloud-release.git ~/.claude/skills/cloud-release
-
-# 在项目中运行
-cd /your/project
-/cloud-release
+git clone https://github.com/rrred0324/cloud-release.git
+cd cloud-release
+./setup.sh
 ```
 
-### 作为 Codex Skill
+安装后重启 Claude Code，在项目目录运行 `/cloud-release`。
+
+### For Codex CLI
 
 ```bash
-# 克隆到 agents/skills 目录
-git clone https://github.com/rrred0324/cloud-release.git .agents/skills/cloud-release
+git clone https://github.com/rrred0324/cloud-release.git
+cd cloud-release
+./install.sh codex
+```
 
-# 运行
-codex exec "/cloud-release"
+安装后运行 `codex exec "/cloud-release"`。
+
+### 手动安装
+
+```bash
+# Claude Code
+git clone https://github.com/rrred0324/cloud-release.git ~/.claude/skills/cloud-release
+
+# Codex CLI（在项目目录下）
+git clone https://github.com/rrred0324/cloud-release.git .agents/skills/cloud-release
 ```
 
 ---
@@ -211,11 +220,22 @@ codex exec "/cloud-release"
 
 Cloud Release 在每次运行时自动检测 GitHub 是否有新版本，有更新时非阻塞提示。
 
-手动升级：
+在 Claude Code / Codex 中升级：
 
 ```bash
 /cloud-release --upgrade
 ```
+
+离线升级（全新机器或 skill 目录损坏时）：
+
+```bash
+cd /path/to/cloud-release   # 进入原 clone 目录
+git pull
+./upgrade.sh                # Claude Code（默认）
+./upgrade.sh codex          # Codex CLI
+```
+
+查看当前版本：`/cloud-release --version`
 
 ---
 
